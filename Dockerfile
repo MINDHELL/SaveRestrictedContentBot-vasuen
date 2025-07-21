@@ -1,8 +1,26 @@
+# Use a lightweight Python base image
 FROM python:3.10.13-slim
-RUN mkdir /app && chmod 777 /app
-WORKDIR /app
+
+# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt -qq update && apt -qq install -y git python3 python3-pip ffmpeg
-COPY . .
-RUN pip3 install --no-cache-dir -r requirements.txt
-CMD ["bash","bash.sh"]
+
+# Install system dependencies
+RUN apt update -qq && \
+    apt install -y --no-install-recommends git ffmpeg && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create app directory and set permissions
+WORKDIR /app
+COPY . /app
+RUN chmod +x bash.sh
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt
+
+# Expose port for health check (Flask or other)
+EXPOSE 8080
+
+# Start the bot
+CMD ["bash", "bash.sh"]
