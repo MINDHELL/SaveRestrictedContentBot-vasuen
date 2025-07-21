@@ -1,43 +1,37 @@
-#Github.com/Vasusen-code
-
 from pyrogram import Client
-
-from telethon.sessions import StringSession
-from telethon.sync import TelegramClient
-
 from decouple import config
-import logging, time, sys
+import logging, sys
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.WARNING)
 
-# variables
-API_ID = config("API_ID", default=None, cast=int)
-API_HASH = config("API_HASH", default=None)
-BOT_TOKEN = config("BOT_TOKEN", default=None)
-SESSION = config("SESSION", default=None)
+API_ID = config("API_ID", cast=int)
+API_HASH = config("API_HASH")
+BOT_TOKEN = config("BOT_TOKEN")
+SESSION = config("SESSION")  # Userbot session
 FORCESUB = config("FORCESUB", default=None)
 AUTH = config("AUTH", default=None, cast=int)
 
-bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN) 
+# Bot client
+bot = Client(
+    "SaveRestrictedBot",
+    api_id=API_ID,
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
+)
 
-userbot = Client("saverestricted", session_string=SESSION, api_hash=API_HASH, api_id=API_ID) 
+# Userbot client
+userbot = Client(
+    "SaveRestrictedUser",
+    api_id=API_ID,
+    api_hash=API_HASH,
+    session_string=SESSION
+)
 
+# Start userbot immediately
 try:
     userbot.start()
-except BaseException:
-    print("Userbot Error ! Have you added SESSION while deploying??")
-    sys.exit(1)
-
-Bot = Client(
-    "SaveRestricted",
-    bot_token=BOT_TOKEN,
-    api_id=int(API_ID),
-    api_hash=API_HASH
-)    
-
-try:
-    Bot.start()
 except Exception as e:
+    print("❌ Failed to start userbot session.")
     print(e)
     sys.exit(1)
