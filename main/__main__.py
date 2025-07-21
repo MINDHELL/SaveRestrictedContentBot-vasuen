@@ -2,7 +2,7 @@ import glob
 from pathlib import Path
 from main.utils import load_plugins
 import logging
-from . import bot
+from main import bot
 import threading
 from health_check import start_health_check
 
