@@ -3,6 +3,8 @@ from pathlib import Path
 from main.utils import load_plugins
 import logging
 from . import bot
+import threading
+from health_check import start_health_check
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.WARNING)
@@ -20,4 +22,5 @@ print("Successfully deployed!")
 print("By MaheshChauhan • DroneBots")
 
 if __name__ == "__main__":
+    threading.Thread(target=start_health_check, daemon=True).start()
     bot.run_until_disconnected()
