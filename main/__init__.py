@@ -1,5 +1,3 @@
-# __init__.py
-
 import logging
 import sys
 import asyncio
@@ -13,42 +11,44 @@ logging.basicConfig(
     level=logging.WARNING
 )
 
-API_ID = config("API_ID", default=None, cast=int)
-API_HASH = config("API_HASH", default=None)
-BOT_TOKEN = config("BOT_TOKEN", default=None)
+API_ID = config("API_ID", cast=int)
+API_HASH = config("API_HASH")
+BOT_TOKEN = config("BOT_TOKEN")
 SESSION = config("SESSION", default=None)
 
-# Start Telethon userbot if SESSION is provided
 userbot = None
-if SESSION:
-    try:
-        userbot = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
-        userbot.start()
-        logging.warning("Userbot started successfully.")
-    except Exception as e:
-        logging.warning(f"Userbot Error: {e}")
-        sys.exit(1)
-else:
-    logging.warning("No SESSION provided. Skipping userbot.")
-
-# Start Pyrogram bot
 Bot = Client(
     "SaveRestricted",
-    bot_token=BOT_TOKEN,
     api_id=API_ID,
-    api_hash=API_HASH
+    api_hash=API_HASH,
+    bot_token=BOT_TOKEN
 )
 
-async def main():
-    await Bot.start()
-    logging.warning("Pyrogram bot started successfully.")
+def run_main():
+    asyncio.run(start_bot())
 
-    # Run idle loop to keep the bot alive
+async def start_bot():
+    global userbot
+
+    try:
+        await Bot.start()
+        logging.warning("Pyrogram bot started successfully.")
+    except Exception as e:
+        logging.error(f"Failed to start Pyrogram bot: {e}")
+        sys.exit(1)
+
+    # Start userbot if SESSION is available
+    if SESSION:
+        try:
+            userbot = TelegramClient(StringSession(SESSION), API_ID, API_HASH)
+            await userbot.start()
+            logging.warning("Telethon userbot started successfully.")
+        except Exception as e:
+            logging.warning(f"Userbot Error: {e}")
+            userbot = None
+
     await idle()
 
     await Bot.stop()
     if userbot:
         await userbot.disconnect()
-
-if __name__ == "__main__":
-    asyncio.run(main())
