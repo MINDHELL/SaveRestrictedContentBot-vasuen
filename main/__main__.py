@@ -23,4 +23,4 @@ print("By MaheshChauhan • DroneBots")
 
 if __name__ == "__main__":
     threading.Thread(target=start_health_check, daemon=True).start()
-    bot.run()
+    bot.run_until_disconnected()
